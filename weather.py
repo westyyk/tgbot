@@ -1,4 +1,3 @@
-
 import telebot
 from telebot import types
 token = '7555331120:AAH4jbM0M4EsXaMOFif15OEqRNA-iip27-c'
@@ -123,20 +122,41 @@ def bot_message(message):
     
     elif message.text == 'Амурская область':
       markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-      item1 = types.KeyboardButton('Барнаул')
-      item2 = types.KeyboardButton('Заринск')
-      back = types.KeyboardButton('Назад')
-      markup.add(item1, item2, back)
+      item1 = types.KeyboardButton('Белогорск')
+      item2 = types.KeyboardButton('Благовещенск')
+      item3 = types.KeyboardButton('Завитинск')
+      item4 = types.KeyboardButton('Зея')
+      item5 = types.KeyboardButton('Райчихинск')
+      item6 = types.KeyboardButton('Свободный')
+      item7 = types.KeyboardButton('Сковородино')
+      item8 = types.KeyboardButton('Тында')
+      item9 = types.KeyboardButton('Циолковский')
+      item10 = types.KeyboardButton('Шимановск')
+      back1 = types.KeyboardButton('Назад')
+      
+      markup.add(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, back1)
       
       bot.send_message(message.chat.id, 'Какой город вас интересует?', reply_markup = markup)
 
 
     elif message.text == 'Архангельская область':
       markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-      item1 = types.KeyboardButton('Барнаул')
-      item2 = types.KeyboardButton('Заринск')
-      back = types.KeyboardButton('Назад')
-      markup.add(item1, item2, back)
+      item1 = types.KeyboardButton('Архангельск')
+      item2 = types.KeyboardButton('Вельск')
+      item3 = types.KeyboardButton('Каргополь')
+      item4 = types.KeyboardButton('Коряжма')
+      item5 = types.KeyboardButton('Котлас')
+      item6 = types.KeyboardButton('Мезень')
+      item7 = types.KeyboardButton('Мирный')
+      item8 = types.KeyboardButton('Новодвинск')
+      item9 = types.KeyboardButton('Няндома')
+      item10 = types.KeyboardButton('Онега')
+      item11 = types.KeyboardButton('Северодвинск')
+      item12 = types.KeyboardButton('Сольвычегодск')
+      item13 = types.KeyboardButton('Шенкурск')
+      back1 = types.KeyboardButton('Назад')
+
+      markup.add(item1,item2,item3,item4,item5,item6,item7,item8,item9,item10,item11,item12, item13, back1)
       
       bot.send_message(message.chat.id, 'Какой город вас интересует?', reply_markup = markup)
     
