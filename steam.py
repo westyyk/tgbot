@@ -1,49 +1,100 @@
-import telebot
 import requests
+import telebot
 
 token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM'
 bot = telebot.TeleBot(token)
 
-users_data = {}
-
-@bot.message_handler(commands=["start"])
+@bot.message_handler(commands=['start'])
 def start(message):
-    chat_id = message.chat.id
-    bot.send_message(message.chat.id, 'Приветствую, пришлите свой API ключ и User ID')
-    users_data[chat_id] = {'API_KEY': '', 'User_ID': ''}
+    bot.reply_to(message, 'Приветствую! Напиши название игры, чтобы узнать ее цену в рублях. (Название нужно писать 1:1 как указано в Steam)\nНапример: вы хотите найти игру PUBG: BATTLEGROUNDS, если вы будете писать PUBG или же pubg вам выдаст что игра не найдена.\nТакже и с играми со специальными знаками по типу: Train Sim World® 5, если вы не напишите ® в названии то игру не найдет.')
+
+def get_gameinfo(game_id: int):
+    url = f"https://store.steampowered.com/api/appdetails?appids={game_id}&cc=RU&l=russian"
+    response = requests.get(url)
+    data = response.json()
+
+    if str(game_id) in data and data[str(game_id)]['success']:
+        game_data = data[str(game_id)]['data']
+        normal_price = game_data.get('price_overview', {}).get('initial', 0)
+        discounted_price = game_data.get('price_overview', {}).get('final', 0)
+        
+        if normal_price == 0 and discounted_price == 0:
+            normal_price = "Бесплатная"
+            discounted_price = "Бесплатная"
+        elif normal_price == discounted_price:
+            discounted_price = "В данный момент скидки не присутствует"
+
+        description = game_data.get('short_description', 'Об этой игре отсутствует информация')
+        image_url = game_data.get('header_image', '')
+
+        return {
+            'normal_price': normal_price if isinstance(normal_price, str) else normal_price / 100,
+            'discounted_price': discounted_price if isinstance(discounted_price, str) else discounted_price / 100,
+            'description': description,
+            'image_url': image_url
+        }
+    return None
+
+def searchgame(game_name: str):
+    url = f"https://api.steampowered.com/ISteamApps/GetAppList/v2/"
+    response = requests.get(url)
+    data = response.json()
+
+    found_games = []
+
+    for game in data['applist']['apps']:
+        if game_name == game['name']:
+            game_info = {
+                'name': game['name'],
+                'url': f"https://store.steampowered.com/app/{game['appid']}/"
+            }
+            game_details = get_gameinfo(game['appid'])
+            if game_details:
+                game_info.update(game_details)
+            else:
+                game_info['normal_price'] = "Нет информации о цене"
+                game_info['discounted_price'] = "Нет информации о скидке"
+                game_info['description'] = "Об этой игре отсутствует информация"
+                game_info['image_url'] = ""
+
+            found_games.append(game_info)
+
+    return found_games
 
 @bot.message_handler(func=lambda message: True)
-def save_api_user_id(message):
-    chat_id = message.chat.id
-    if chat_id in users_data and users_data[chat_id]['API_KEY'] == '':
-        user_input = message.text.split()
-        if len(user_input) == 2:
-            users_data[chat_id]['API_KEY'] = user_input[0]
-            users_data[chat_id]['User_ID'] = user_input[1]
-            bot.reply_to(message, 'Ваш API ключ и User ID сохранены.')
-            print(users_data)
+def gamemessage(message):
+    game_name = message.text.strip()
+    
+    games = searchgame(game_name)
+
+    if games:
+        if len(games) == 1:
+            response = "Найдена игра:\n"
         else:
-            bot.reply_to(message, 'Отправьте два значения: API ключ и User ID.')
+            response = "Найдены игры:\n"
+            
+        for game in games:
+            if game['discounted_price'] == "В данный момент скидки не присутствует":
+                response += f"{game['name']}:\nОбычная цена - {game['normal_price']} руб., В данный момент скидки на данную игру не присутствует.\n"
+            elif game['normal_price'] == "Бесплатная":
+                response += f"{game['name']}:\nОбычная цена - Бесплатная.\n"
+            else:
+                response += f"{game['name']}:\nОбычная цена - {game['normal_price']} руб., Цена со скидкой - {game['discounted_price']} руб.\n"
+            response += f"Об этой игре: {game['description']}\nСсылка: {game['url']}\n\n"
+            
+            if game['image_url']:
+                bot.send_photo(message.chat.id, game['image_url'], response)
+            else:
+                bot.send_message(message.chat.id, response)
 
-@bot.message_handler(message=['get_sales'])
-def get_sales(message):
-    chat_id = message.chat.id
-    if chat_id not in users_data:
-        bot.reply_to(message, 'Сначала отправьте два значения: API ключ и User ID')
-        return
-
-    user_data = users_data[chat_id]
-    API_KEY = user_data['API_KEY']
-    User_ID = user_data['User_ID']
-
-    sales = get_sales(API_KEY, User_ID)
-    if sales:
-        sale_message = "Вот текущие скидки Steam игр, на которые вы подписались.:\n\n"
-        for sale in sales:
-            sale_message += f"{sale['name']}: {sale['discount']}% off, now {sale['final_price']}\n"
-        bot.reply_to(message, sale_message)
+        response = "Если есть другие игры, которые вас интересуют, напишите их названия!"
+        bot.send_message(message.chat.id, response)
     else:
-        bot.reply_to(message, 'Скидок не найдено')
+        response = "Игры не найдены.\n\nЕсли есть другие игры, которые вас интересуют, напишите их названия!"
+        bot.reply_to(message, response)
 
-
-bot.polling(none_stop=True)
+if __name__ == '__main__':
+    try:
+        bot.polling(none_stop = True)
+    except Exception as e:
+        print(f"Ошибка: {e}")
