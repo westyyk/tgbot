@@ -157,7 +157,7 @@ def send_updates():
                     bot.send_photo(subscriber, game_details['image_url'], response)
                 else:
                     bot.send_message(subscriber, response)
-        time.sleep(15)
+        time.sleep(86400)
 
 if __name__ == '__main__':
     import threading
