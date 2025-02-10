@@ -26,8 +26,7 @@ Eсли у вас нет git, вам нужно установить его: htt
 ```bash
 pip install -r requirements.txt
 ```
-Добавьте свой токен в код: В файле ```steam.py``` замените token = ```'BOT_TOKEN'``` на ваш собственный токен, который можно получить у BotFather.
-
+Добавьте свой токен в код: В файле ```steam.py``` замените token = ```'BOT_TOKEN'``` на ваш собственный токен, который можно получить у <a href=https://t.me/BotFather>BotFather</a>.
 1. **Клонируйте репозиторий**:
 ```bash
 git clone https://github.com/westyyk/tgbot
