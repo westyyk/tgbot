@@ -30,6 +30,8 @@ Eсли у вас нет git, вам нужно установить его: htt
 1. **Клонируйте репозиторий**:
 ```bash
   -git clone https://github.com/westyyk/tgbot
+```
+```bash
   -cd https://github.com/westyyk/tgbot
 ```
 2. **Запустите бота**:
