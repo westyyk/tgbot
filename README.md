@@ -31,9 +31,6 @@ pip install -r requirements.txt
 ```bash
 git clone https://github.com/westyyk/tgbot
 ```
-```bash
-cd https://github.com/westyyk/tgbot
-```
 2. **Запустите бота**:
 ```bash
 python steam.py
