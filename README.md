@@ -24,19 +24,19 @@ Eсли у вас нет git, вам нужно установить его: htt
 
 Чтобы начать работу, вам нужно установить необходимые библиотеки Python. Зайдите в папку tgbot-main и введите в cmd или terminal эту команду: 
 ```bash
-   pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 1. **Клонируйте репозиторий**:
 ```bash
-  -git clone https://github.com/westyyk/tgbot
+git clone https://github.com/westyyk/tgbot
 ```
 ```bash
-  -cd https://github.com/westyyk/tgbot
+cd https://github.com/westyyk/tgbot
 ```
 2. **Запустите бота**:
 ```bash
-   python steam.py
+python steam.py
 ```
 ## Использование
 
