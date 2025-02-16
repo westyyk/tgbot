@@ -6,7 +6,7 @@ import json
 import os
 import threading
 
-token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM'
+token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM' #Замените тут на ваш токен бота (если требуется)
 bot = telebot.TeleBot(token)
 
 subscriptions_file = os.path.join(os.path.expanduser("~"), "Desktop", "tgbot-main", "subscriptions.json")
