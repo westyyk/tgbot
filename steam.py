@@ -6,36 +6,32 @@ import json
 import os
 import threading
 
-token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM'  # Замените на ваш токен
+token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM'
 bot = telebot.TeleBot(token)
 
-# Абсолютный путь к файлу подписок
 subscriptions_file = os.path.join(os.path.expanduser("~"), "Desktop", "tgbot-main", "subscriptions.json")
-#Создаем папку tgbot, если ее нет.
 os.makedirs(os.path.dirname(subscriptions_file), exist_ok=True)
 
-# Проверка наличия файла и загрузка подписок
-subscribers = {}  # Инициализируем subscribers здесь
+subscribers = {}
 
 def load_subscriptions():
-    global subscribers  # Объявляем, что используем глобальную переменную subscribers
+    global subscribers
     try:
         with open(subscriptions_file, 'r', encoding='utf-8') as file:
             subscribers = json.load(file)
         print("Подписки успешно загружены из файла.")
     except FileNotFoundError:
         print("Файл подписок не найден. Будет создан новый.")
-        subscribers = {}  # Создаем пустой словарь, если файл не найден
-        save_subscriptions() # создаем файл сразу
+        subscribers = {}
+        save_subscriptions()
     except json.JSONDecodeError:
         print("Ошибка при декодировании JSON. Файл подписок поврежден или пуст.")
-        subscribers = {}  # Создаем пустой словарь, если файл поврежден
+        subscribers = {}
     except Exception as e:
         print(f"Произошла ошибка при загрузке подписок: {e}")
         import traceback
-        traceback.print_exc() # Печатаем traceback для подробной информации
+        traceback.print_exc()
 
-# Функция для сохранения подписок в файл
 def save_subscriptions():
     try:
         with open(subscriptions_file, 'w', encoding='utf-8') as file:
@@ -46,7 +42,7 @@ def save_subscriptions():
         import traceback
         traceback.print_exc()
 
-load_subscriptions() # Загружаем подписки при запуске
+load_subscriptions()
 
 unsubscribe_mode = {}
 subscribe_mode = {}
@@ -62,7 +58,7 @@ def start(message):
     bot.reply_to(message, 'Приветствую! Напиши название игры, чтобы узнать ее цену в рублях. (Название нужно писать 1:1 как указано в Steam)\nНапример: вы хотите найти игру PUBG: BATTLEGROUNDS, если вы будете писать PUBG или же pubg вам выдаст что игра не найдена.\nТакже и с играми со специальными знаками по типу: Train Sim World® 5, если вы не напишете ® в названии то игру не найдет.', reply_markup=markup)
 
     chat_id = message.chat.id
-    if chat_id in subscribers and subscribers.get(chat_id): # Используем get() для безопасного доступа
+    if chat_id in subscribers and subscribers.get(chat_id):
         response = "Ваши подписки на игры:\n"
         for i, game in enumerate(subscribers[chat_id], start=1):
             response += f"{i}. {game}\n"
@@ -129,8 +125,8 @@ last_message = {}
 
 @bot.message_handler(content_types=['text'])
 def gamemessage(message):
-    global subscribers  # Указываем, что используем глобальную переменную subscribers
-    chat_id = str(message.chat.id) # Получаем chat_id здесь
+    global subscribers
+    chat_id = str(message.chat.id)
 
     if message.text == 'Подписаться на игру':
         bot.send_message(chat_id, 'Напишите название игры, на которую хотите подписаться.')
@@ -139,7 +135,7 @@ def gamemessage(message):
         bot.send_message(chat_id, 'Напишите название игры, от которой хотите отписаться.')
         last_message[chat_id] = 'Отписаться от игры'
     elif message.text == 'Мои подписки':
-        if chat_id in subscribers and subscribers.get(chat_id): # Используем get() для безопасного доступа
+        if chat_id in subscribers and subscribers.get(chat_id):
             response = "Ваши подписки на игры:\n"
             for i, game in enumerate(subscribers[chat_id], start=1):
                 response += f"{i}. {game}\n"
@@ -210,7 +206,7 @@ def gamemessage(message):
 
         elif last_message.get(chat_id) == 'Отписаться от игры':
             game_name = message.text
-            if chat_id in subscribers and subscribers.get(chat_id) and game_name in subscribers[chat_id]: # Добавил get() и проверку на существование ключа
+            if chat_id in subscribers and subscribers.get(chat_id) and game_name in subscribers[chat_id]:
                 subscribers[chat_id].remove(game_name)
                 save_subscriptions()
                 bot.send_message(chat_id, f'Вы успешно отписались от игры {game_name}.')
@@ -265,7 +261,7 @@ def gamemessage(message):
 def send_updates():
     while True:
         for chat_id in subscribers:
-            if subscribers.get(chat_id): # Проверяем наличие подписок у пользователя
+            if subscribers.get(chat_id):
                 for game in subscribers[chat_id]:
                     games = searchgame(game)
                     if games:
@@ -308,7 +304,7 @@ def send_updates():
                                 bot.send_message(chat_id, response)
                         except telebot.apihelper.ApiTelegramException as e:
                             print(f"Ошибка при отправке обновления для {chat_id}: {e}")
-                            if "chat not found" in str(e): # Обработка ошибки, если чат был удален или заблокировал бота
+                            if "chat not found" in str(e):
                                 print(f"Удаляю подписки для чата {chat_id}, так как он не найден")
                                 if chat_id in subscribers:
                                     del subscribers[chat_id]
@@ -317,7 +313,6 @@ def send_updates():
         time.sleep(86400)
 
 if __name__ == '__main__':
-    import threading
     update_thread = threading.Thread(target=send_updates)
     update_thread.start()
     try:
