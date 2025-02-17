@@ -5,32 +5,35 @@ import time
 import json
 import os
 import threading
+import traceback
 
-token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM' #Замените тут на ваш токен бота (если требуется)
+token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM'  #Замените тут на ваш токен бота (если требуется)
 bot = telebot.TeleBot(token)
 
 subscriptions_file = os.path.join(os.path.expanduser("~"), "Desktop", "tgbot-main", "subscriptions.json")
+
 os.makedirs(os.path.dirname(subscriptions_file), exist_ok=True)
 
 subscribers = {}
 
 def load_subscriptions():
-    global subscribers
+    global subscribers 
     try:
         with open(subscriptions_file, 'r', encoding='utf-8') as file:
             subscribers = json.load(file)
         print("Подписки успешно загружены из файла.")
     except FileNotFoundError:
         print("Файл подписок не найден. Будет создан новый.")
-        subscribers = {}
-        save_subscriptions()
+        subscribers = {}  
+        save_subscriptions() 
     except json.JSONDecodeError:
         print("Ошибка при декодировании JSON. Файл подписок поврежден или пуст.")
-        subscribers = {}
+        subscribers = {}  
     except Exception as e:
         print(f"Произошла ошибка при загрузке подписок: {e}")
-        import traceback
-        traceback.print_exc()
+        
+        traceback.print_exc() 
+
 
 def save_subscriptions():
     try:
@@ -39,10 +42,10 @@ def save_subscriptions():
         print("Подписки успешно сохранены в файл.")
     except Exception as e:
         print(f"Произошла ошибка при сохранении подписок: {e}")
-        import traceback
+       
         traceback.print_exc()
 
-load_subscriptions()
+load_subscriptions() 
 
 unsubscribe_mode = {}
 subscribe_mode = {}
@@ -58,7 +61,7 @@ def start(message):
     bot.reply_to(message, 'Приветствую! Напиши название игры, чтобы узнать ее цену в рублях. (Название нужно писать 1:1 как указано в Steam)\nНапример: вы хотите найти игру PUBG: BATTLEGROUNDS, если вы будете писать PUBG или же pubg вам выдаст что игра не найдена.\nТакже и с играми со специальными знаками по типу: Train Sim World® 5, если вы не напишете ® в названии то игру не найдет.', reply_markup=markup)
 
     chat_id = message.chat.id
-    if chat_id in subscribers and subscribers.get(chat_id):
+    if chat_id in subscribers and subscribers.get(chat_id): 
         response = "Ваши подписки на игры:\n"
         for i, game in enumerate(subscribers[chat_id], start=1):
             response += f"{i}. {game}\n"
@@ -125,8 +128,8 @@ last_message = {}
 
 @bot.message_handler(content_types=['text'])
 def gamemessage(message):
-    global subscribers
-    chat_id = str(message.chat.id)
+    global subscribers  
+    chat_id = str(message.chat.id) 
 
     if message.text == 'Подписаться на игру':
         bot.send_message(chat_id, 'Напишите название игры, на которую хотите подписаться.')
@@ -206,7 +209,7 @@ def gamemessage(message):
 
         elif last_message.get(chat_id) == 'Отписаться от игры':
             game_name = message.text
-            if chat_id in subscribers and subscribers.get(chat_id) and game_name in subscribers[chat_id]:
+            if chat_id in subscribers and subscribers.get(chat_id) and game_name in subscribers[chat_id]: 
                 subscribers[chat_id].remove(game_name)
                 save_subscriptions()
                 bot.send_message(chat_id, f'Вы успешно отписались от игры {game_name}.')
@@ -261,7 +264,7 @@ def gamemessage(message):
 def send_updates():
     while True:
         for chat_id in subscribers:
-            if subscribers.get(chat_id):
+            if subscribers.get(chat_id): 
                 for game in subscribers[chat_id]:
                     games = searchgame(game)
                     if games:
@@ -304,7 +307,7 @@ def send_updates():
                                 bot.send_message(chat_id, response)
                         except telebot.apihelper.ApiTelegramException as e:
                             print(f"Ошибка при отправке обновления для {chat_id}: {e}")
-                            if "chat not found" in str(e):
+                            if "chat not found" in str(e): 
                                 print(f"Удаляю подписки для чата {chat_id}, так как он не найден")
                                 if chat_id in subscribers:
                                     del subscribers[chat_id]
