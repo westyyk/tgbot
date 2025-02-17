@@ -10,7 +10,7 @@ import traceback
 token = '7351672676:AAGG4zdqm39WrpMn5brgqrU6IJAeXijfrWM'  #Замените тут на ваш токен бота (если требуется)
 bot = telebot.TeleBot(token)
 
-subscriptions_file = os.path.join(os.path.expanduser("~"), "Desktop", "tgbot-main", "subscriptions.json")
+subscriptions_file = os.path.join(os.path.expanduser("~"), "Desktop", "tgbot-1.0", "subscriptions.json")
 
 os.makedirs(os.path.dirname(subscriptions_file), exist_ok=True)
 
